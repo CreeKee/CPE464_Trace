@@ -7,11 +7,20 @@
 #define BYTEWIDTH 8
 #define LOWERMASK 0x0F
 
+#define IPTYPE 0x0800
+#define ARPTYPE 0x0806
+#define ICMPNUM 1
+#define ECHO 0
+#define ECHOREPLY 8
+#define CODEOFFSET 1
+
 //Ethernet #defines
 #define MACSIZE 6
 #define TYPESIZE 2
+#define FORMATMACSIZE MACSIZE*3
 
 //IP #defines
+#define CHECKMESSAGE 10
 #define VERSIONLENGTH 1
 #define TOSLENGTH 1
 #define LENGTHLENGTH 2
@@ -21,3 +30,9 @@
 #define PROTOCOLLENGTH 1
 #define CKSUMLENGTH 2
 #define IPLENGTH 4
+#define IPSIZE 16
+
+//ARP defines
+#define ARPPROTOCOLLENGTH 2
+#define ARPHWLENGTH 2
+#define ARPSKIP 4

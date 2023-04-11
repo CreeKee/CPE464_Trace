@@ -2,28 +2,20 @@
 #define __USE_MISC
 #endif // __USE_MISC
 
-
-
 #include "EthernetHead.hpp"
 #include <pcap.h>
 #include <netinet/if_ether.h>
 #include <arpa/inet.h>
 #include "IPHead.hpp"
+#include "ARPHead.hpp"
 
-void packetHandler(
-    u_char *args,
-    const struct pcap_pkthdr *header,
-    const u_char *packet
-){
-
-    return;
-
-}
+void processIPHead(const u_char* data, uint32_t* offset);
+void processARPHead(const u_char* data, uint32_t* offset);
+void processICMP(const u_char* data, uint32_t* offset);
 
 int main(){
 
     EthernetHead* Ehead;
-    IPHead* Ihead;
 
     int res;
 
@@ -40,7 +32,7 @@ int main(){
 
     pcap_t* packet = pcap_open_offline(fileName, errbuf);
     if(!packet){
-        printf("yodel\n");
+        printf("yodel\n"); //TODO
     }
 
 
@@ -51,27 +43,79 @@ int main(){
         Ehead = new EthernetHead(data, &offset);
 
         printf("%s\n%s\n%x\n", 
-            Ehead->getSrc(), 
             Ehead->getDest(), 
+            Ehead->getSrc(), 
             Ehead->getType());
 
         switch(Ehead->getType()){
-            case 2048:
 
-                //Ihead = new IPHead(data+offset, &offset);
-                //printf("%d\n",Ihead->getHeadLen());
+            case IPTYPE:
+                processIPHead(data, &offset);
                 break;
             
+            case ARPTYPE:
+                processARPHead(data, &offset);
+                break;
+
             default:
                 break;
         }
         
-        
         putchar('\n');
         putchar('\n');
-        //free(Ehead);
-        //free(Ihead);
+        free(Ehead);
     }
     
     return 0;
+}
+
+void processIPHead(const u_char* data, uint32_t* offset){
+    IPHead Ihead(data+*offset, offset);
+    printf("IP\n%d (bytes)\n0x%x\n%d\n%d\n%d\n%d 0x%x\n%s\n%s",
+        Ihead.getHeadLen()*BYTEWIDTH/2, 
+        Ihead.getTos(),
+        Ihead.getTtl(),
+        Ihead.getLength(),
+        Ihead.getProtocol(),
+        Ihead.getConf(),
+        Ihead.getCksum(),
+        Ihead.getSourceIP(),
+        Ihead.getDestIP());
+
+        switch(Ihead.getProtocol()){
+
+            case(ICMPNUM):
+                processICMP(data, offset);
+                break;
+
+            default:
+                break;
+        }
+
+        return;
+}
+
+void processARPHead(const u_char* data, uint32_t* offset){
+    ARPHead Ahead(data+*offset);
+    return;
+}
+
+void processICMP(const u_char* data, uint32_t* offset){
+
+    printf("\nICMP Header\n");
+    switch(*(data+*offset+CODEOFFSET)){
+        case ECHO:
+            printf("Type: Request\n");
+            break;
+
+        case ECHOREPLY:
+            printf("Type: Reply\n");
+            break;
+
+        default:
+            printf("unkown ICMP type\n");
+            break;
+    }
+
+    return;
 }

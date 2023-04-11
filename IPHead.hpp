@@ -19,13 +19,20 @@ class IPHead{
 
         uint32_t options;
 
-        struct in_addr sourceIP;
-        struct in_addr destIP;
+        char sourceIP[IPSIZE];
+        char destIP[IPSIZE];
     public:
         IPHead(const u_char* data, uint32_t* offset);
 
         u_char getHeadLen(){return verslen&LOWERMASK;}
-        
+        u_char getTos(){return tos;}
+        u_char getTtl(){return ttl;}
+        uint16_t getLength(){return length;}
+        u_char getProtocol(){return protocol;}
+        bool getConf(){return checked;}
+        uint16_t getCksum(){return chksum;}
+        char* getSourceIP(){return sourceIP;}
+        char* getDestIP(){return destIP;}
 
 };
 
