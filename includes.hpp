@@ -33,6 +33,7 @@
 #define IPSIZE 16
 
 //ARP defines
-#define ARPPROTOCOLLENGTH 2
+#define OPCODELENGTH 2
 #define ARPHWLENGTH 2
 #define ARPSKIP 4
+#define ARPOPOFFSET 6

@@ -6,12 +6,10 @@ ARPHead::ARPHead(const u_char* data){
     struct in_addr IPcarrier;
     struct ether_addr MACcarrier;
 
-    data += TYPESIZE;
+    data += ARPOPOFFSET;
 
-    protocol = *(uint16_t*)data;
-    data += PROTOCOLLENGTH;
-
-    data += ARPSKIP;
+    opcode = *(uint16_t*)data;
+    data += OPCODELENGTH;
 
     memcpy(MACcarrier.ether_addr_octet, (data+MACSIZE), MACSIZE);
     memcpy(srcMac, ether_ntoa((&MACcarrier)), strlen(ether_ntoa((&MACcarrier))));

@@ -7,7 +7,7 @@ class ARPHead{
 
     private:
         //stuff
-        uint16_t protocol;
+        uint16_t opcode;
 
         char sourceIP[IPSIZE];
         char destIP[IPSIZE];
@@ -18,10 +18,10 @@ class ARPHead{
     public:
         ARPHead(const u_char* data);
 
-        uint16_t getProtocol(){return protocol;}
-        char* getSrc(){return srcMac;}
-        char* getDest(){return dstMac;}
-        char* getSourceIP(){return sourceIP;}
+        uint16_t getOpcode(){return opcode;}
+        char* getSrcMAC(){return srcMac;}
+        char* getDestMAC(){return dstMac;}
+        char* getSrcIP(){return sourceIP;}
         char* getDestIP(){return destIP;}
 
 };

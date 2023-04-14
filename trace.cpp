@@ -96,7 +96,29 @@ void processIPHead(const u_char* data, uint32_t* offset){
 }
 
 void processARPHead(const u_char* data, uint32_t* offset){
+    
     ARPHead Ahead(data+*offset);
+
+    switch(Ahead.getOpcode()){
+
+        case ARPOP_REQUEST:
+            printf("Opcode: Request\n");
+            break;
+
+        case ARPOP_REPLY:
+            printf("Opcode: Reply");
+            break;
+
+        default:
+            printf("Opcode: Unkown");
+            break;
+    }
+    printf("Sender MAC: %s\n", Ahead.getSrcMAC());
+    printf("Sender IP: %s\n", Ahead.getSrcIP());
+    printf("Target MAC: %s\n", Ahead.getDestMAC());
+    printf("Target IP: %s\n", Ahead.getDestMAC());
+    
+
     return;
 }
 
