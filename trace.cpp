@@ -9,21 +9,16 @@
 #include "IPHead.hpp"
 #include "ARPHead.hpp"
 
+void processEthernetHead(const u_char* data, uint32_t* offset);
 void processIPHead(const u_char* data, uint32_t* offset);
 void processARPHead(const u_char* data, uint32_t* offset);
 void processICMP(const u_char* data, uint32_t* offset);
 
 int main(){
 
-    EthernetHead* Ehead;
-
     int res;
-
-    struct ether_addr srcAdd;
-    struct ether_addr dstAdd;
-    uint16_t type;
-
-    char* fileName = "/Users/admin/SethStuff/CPE464_Trace/inputs/PingTest.pcap";
+    int packetNum = 0;
+    char fileName[] = "/Users/admin/SethStuff/CPE464_Trace/inputs/PingTest.pcap";
     char errbuf[PCAP_ERRBUF_SIZE];    
 
     struct pcap_pkthdr* pktHeader;
@@ -37,50 +32,64 @@ int main(){
 
 
     while((res = pcap_next_ex(packet, &pktHeader, &data)) >=0){ //error check
-        
+        packetNum++;
         offset = 0;
 
-        Ehead = new EthernetHead(data, &offset);
+        processEthernetHead(data, &offset);
+        
+        putchar('\n');
+        printf("Packet number: %d Frame Len: %d\n", packetNum, pktHeader->len);
+        putchar('\n');
+    }
+    return 0;
+}
 
-        printf("Ethernet Header:\n");
+void processEthernetHead(const u_char* data, uint32_t* offset){
 
-        printf("Dest MAC: %s\n", Ehead->getDest());
-        printf("Source MAC: %s\n", Ehead->getSrc());
-        switch(Ehead->getType()){
+        EthernetHead Ehead = EthernetHead(data, offset);
+
+        printf("\tEthernet Header:\n");
+        printf("\t\tDest MAC: %s\n", Ehead.getDest());
+        printf("\t\tSource MAC: %s\n\n", Ehead.getSrc());
+
+        switch(Ehead.getType()){
 
             case IPTYPE:
-                printf("Type: IP\n");
-                processIPHead(data, &offset);
+                processIPHead(data, offset);
                 break;
             
             case ARPTYPE:
-                printf("Type: ARP\n");
-                processARPHead(data, &offset);
+                processARPHead(data, offset);
                 break;
 
             default:
                 break;
         }
-        
-        putchar('\n');
-        putchar('\n');
-        free(Ehead);
-    }
-    return 0;
+
 }
 
 void processIPHead(const u_char* data, uint32_t* offset){
     IPHead Ihead(data+*offset, offset);
-    printf("IP\n%d (bytes)\n0x%x\n%d\n%d\n%d\n%d 0x%x\n%s\n%s",
-        Ihead.getHeadLen()*BYTEWIDTH/2, 
-        Ihead.getTos(),
-        Ihead.getTtl(),
-        Ihead.getLength(),
-        Ihead.getProtocol(),
-        Ihead.getConf(),
-        Ihead.getCksum(),
-        Ihead.getSourceIP(),
-        Ihead.getDestIP());
+    printf("\tType: IP\n");
+    printf("\t\tHeader Len: %d (bytes)\n",Ihead.getHeadLen()*BYTEWIDTH/2 );
+    printf("\t\tTOS 0x%x\n",Ihead.getTos());
+    printf("\t\tTTL: %d\n",Ihead.getTtl());
+    printf("\t\tIP PDU Len: %d (bytes)\n",Ihead.getLength());
+
+    switch(Ihead.getProtocol()){
+
+        case(ICMPNUM):
+            printf("\t\tProtocol: ICMP\n");
+            break;
+
+        default:
+            printf("\t\tProtocol: Unkown\n");
+            break;
+    }
+
+    printf("\t\tChecksum: %s (%x)\n",(Ihead.getConf() == 0 ? "Correct" : "Incorrect"), Ihead.getCksum());
+    printf("\t\tSender IP: %s\n", Ihead.getSourceIP());
+    printf("\t\tDest IP: %s\n\n",Ihead.getDestIP());
 
         switch(Ihead.getProtocol()){
 
@@ -98,25 +107,26 @@ void processIPHead(const u_char* data, uint32_t* offset){
 void processARPHead(const u_char* data, uint32_t* offset){
 
     ARPHead Ahead(data+*offset);
+    printf("\tType: ARP\n");
 
     switch(Ahead.getOpcode()){
 
         case ARPOP_REQUEST:
-            printf("Opcode: Request\n");
+            printf("\t\tOpcode: Request\n");
             break;
 
         case ARPOP_REPLY:
-            printf("Opcode: Reply\n");
+            printf("\t\tOpcode: Reply\n");
             break;
 
         default:
-            printf("Opcode: Unkown\n");
+            printf("\t\tOpcode: Unkown\n");
             break;
     }
-    printf("Sender MAC: %s\n", Ahead.getSrcMAC());
-    printf("Sender IP: %s\n", Ahead.getSrcIP());
-    printf("Target MAC: %s\n", Ahead.getDestMAC());
-    printf("Target IP: %s\n", Ahead.getDestIP());
+    printf("\t\tSender MAC: %s\n", Ahead.getSrcMAC());
+    printf("\t\tSender IP: %s\n", Ahead.getSrcIP());
+    printf("\t\tTarget MAC: %s\n", Ahead.getDestMAC());
+    printf("\t\tTarget IP: %s\n", Ahead.getDestIP());
     
 
     return;
@@ -124,18 +134,18 @@ void processARPHead(const u_char* data, uint32_t* offset){
 
 void processICMP(const u_char* data, uint32_t* offset){
 
-    printf("\nICMP Header\n");
+    printf("\tICMP Header\n");
     switch(*(data+*offset+CODEOFFSET)){
         case ECHO:
-            printf("Type: Request\n");
+            printf("\t\tType: Request\n");
             break;
 
         case ECHOREPLY:
-            printf("Type: Reply\n");
+            printf("\t\tType: Reply\n");
             break;
 
         default:
-            printf("unkown ICMP type\n");
+            printf("\t\tUnkown ICMP type\n");
             break;
     }
 
