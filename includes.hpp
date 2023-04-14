@@ -37,3 +37,5 @@
 #define ARPHWLENGTH 2
 #define ARPSKIP 4
 #define ARPOPOFFSET 6
+#define ARPMACLENGTH 8
+#define ARPFIELD 24

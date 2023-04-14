@@ -42,18 +42,19 @@ int main(){
 
         Ehead = new EthernetHead(data, &offset);
 
-        printf("%s\n%s\n%x\n", 
-            Ehead->getDest(), 
-            Ehead->getSrc(), 
-            Ehead->getType());
+        printf("Ethernet Header:\n");
 
+        printf("Dest MAC: %s\n", Ehead->getDest());
+        printf("Source MAC: %s\n", Ehead->getSrc());
         switch(Ehead->getType()){
 
             case IPTYPE:
+                printf("Type: IP\n");
                 processIPHead(data, &offset);
                 break;
             
             case ARPTYPE:
+                printf("Type: ARP\n");
                 processARPHead(data, &offset);
                 break;
 
@@ -65,7 +66,6 @@ int main(){
         putchar('\n');
         free(Ehead);
     }
-    
     return 0;
 }
 
@@ -96,7 +96,7 @@ void processIPHead(const u_char* data, uint32_t* offset){
 }
 
 void processARPHead(const u_char* data, uint32_t* offset){
-    
+
     ARPHead Ahead(data+*offset);
 
     switch(Ahead.getOpcode()){
@@ -106,17 +106,17 @@ void processARPHead(const u_char* data, uint32_t* offset){
             break;
 
         case ARPOP_REPLY:
-            printf("Opcode: Reply");
+            printf("Opcode: Reply\n");
             break;
 
         default:
-            printf("Opcode: Unkown");
+            printf("Opcode: Unkown\n");
             break;
     }
     printf("Sender MAC: %s\n", Ahead.getSrcMAC());
     printf("Sender IP: %s\n", Ahead.getSrcIP());
     printf("Target MAC: %s\n", Ahead.getDestMAC());
-    printf("Target IP: %s\n", Ahead.getDestMAC());
+    printf("Target IP: %s\n", Ahead.getDestIP());
     
 
     return;
