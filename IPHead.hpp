@@ -34,6 +34,8 @@ class IPHead{
         char* getSourceIP(){return sourceIP;}
         char* getDestIP(){return destIP;}
 
+        void display();
+
 };
 
 #endif

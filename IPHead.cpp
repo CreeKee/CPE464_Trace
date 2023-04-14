@@ -39,10 +39,33 @@ IPHead::IPHead(const u_char* data, uint32_t* offset){
     data += IPLENGTH;
 
     data += IPLENGTH;
-    if(verslen&LOWERMASK == 5){
+    if((verslen&LOWERMASK) == 5){
         options  = *data;
     }
 
     *offset += (verslen&LOWERMASK)*BYTEWIDTH/2;
     
+}
+
+void IPHead::display(){
+    printf("\tType: IP\n");
+    printf("\t\tHeader Len: %d (bytes)\n",(verslen&LOWERMASK)*BYTEWIDTH/2 );
+    printf("\t\tTOS 0x%x\n",tos);
+    printf("\t\tTTL: %d\n",ttl);
+    printf("\t\tIP PDU Len: %d (bytes)\n",length);
+
+    switch(getProtocol()){
+
+        case(ICMPNUM):
+            printf("\t\tProtocol: ICMP\n");
+            break;
+
+        default:
+            printf("\t\tProtocol: Unkown\n");
+            break;
+    }
+
+    printf("\t\tChecksum: %s (0x%x)\n",(checked == true ? "Correct" : "Incorrect"), chksum);
+    printf("\t\tSender IP: %s\n", sourceIP);
+    printf("\t\tDest IP: %s\n\n",destIP);
 }

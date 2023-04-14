@@ -24,6 +24,7 @@ class ARPHead{
         char* getSrcIP(){return sourceIP;}
         char* getDestIP(){return destIP;}
 
+        void display();
 };
 
 #endif

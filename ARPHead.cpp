@@ -32,3 +32,27 @@ ARPHead::ARPHead(const u_char* data){
 
     
 }
+
+void ARPHead::display(){
+        printf("\tType: ARP\n");
+
+    switch(opcode){
+
+        case ARPOP_REQUEST:
+            printf("\t\tOpcode: Request\n");
+            break;
+
+        case ARPOP_REPLY:
+            printf("\t\tOpcode: Reply\n");
+            break;
+
+        default:
+            printf("\t\tOpcode: Unkown\n");
+            break;
+    }
+    printf("\t\tSender MAC: %s\n", srcMac);
+    printf("\t\tSender IP: %s\n", sourceIP);
+    printf("\t\tTarget MAC: %s\n", dstMac);
+    printf("\t\tTarget IP: %s\n", destIP);
+    
+}
