@@ -1,6 +1,5 @@
 #include "includes.hpp"
 
-
 #ifndef ETHER_H
 #define ETHER_H
 

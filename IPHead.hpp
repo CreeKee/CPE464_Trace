@@ -21,6 +21,8 @@ class IPHead{
 
         char sourceIP[IPSIZE];
         char destIP[IPSIZE];
+
+        uint8_t pseudo[PSEUDOLENGTH];
     public:
         IPHead(const u_char* data, uint32_t* offset);
 
@@ -33,6 +35,7 @@ class IPHead{
         uint16_t getCksum(){return chksum;}
         char* getSourceIP(){return sourceIP;}
         char* getDestIP(){return destIP;}
+        uint8_t* getPseudo(){return pseudo;}
 
         void display();
 

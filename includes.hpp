@@ -5,6 +5,7 @@
 #include "checksum.h"
 
 #define BYTEWIDTH 8
+#define FIELDSIZE 8
 #define LOWERMASK 0x0F
 
 #define IPTYPE 0x0800
@@ -39,3 +40,14 @@
 #define ARPOPOFFSET 6
 #define ARPMACLENGTH 8
 #define ARPFIELD 24
+
+//TCP defines
+#define PSEUDOLENGTH 12
+#define PORTLENGTH 2
+#define SEQNUMLENGTH 4
+#define ACKNUMLENGTH 4
+#define WINDOWLENTH 2
+#define ACKMASK 0x10
+#define SYNMASK 0x02
+#define RSTMASK 0x04
+#define FINMASK 0x01

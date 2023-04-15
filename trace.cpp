@@ -1,24 +1,23 @@
-#ifndef __USE_MISC
-#define __USE_MISC
-#endif // __USE_MISC
-
 #include "EthernetHead.hpp"
 #include <pcap.h>
 #include <netinet/if_ether.h>
 #include <arpa/inet.h>
 #include "IPHead.hpp"
 #include "ARPHead.hpp"
+#include "TCPHeader.hpp"
 
 void processEthernetHead(const u_char* data, uint32_t* offset);
 void processIPHead(const u_char* data, uint32_t* offset);
 void processARPHead(const u_char* data, uint32_t* offset);
 void processICMP(const u_char* data, uint32_t* offset);
+void processTCPHead(const u_char* data, uint32_t* offset, IPHead Ihead);
+bool psuedoSum(const u_char* data, IPHead Ihead);
 
 int main(){
 
     int res;
-    int packetNum = 0;
-    char fileName[] = "/Users/admin/SethStuff/CPE464_Trace/inputs/PingTest.pcap";
+    int packetNum = 1;
+    char fileName[] = "/Users/admin/SethStuff/CPE464_Trace/inputs/smallTCP.pcap";
     char errbuf[PCAP_ERRBUF_SIZE];    
 
     struct pcap_pkthdr* pktHeader;
@@ -27,18 +26,19 @@ int main(){
 
     pcap_t* packet = pcap_open_offline(fileName, errbuf);
     if(!packet){
-        printf("yodel\n"); //TODO
+        printf("ERROR: unable to open file\n"); //TODO
     }
 
 
     while((res = pcap_next_ex(packet, &pktHeader, &data)) >=0){ //error check
+
+        printf("Packet number: %d Frame Len: %d\n\n", packetNum, pktHeader->len);
+
         packetNum++;
         offset = 0;
 
         processEthernetHead(data, &offset);
         
-        putchar('\n');
-        printf("Packet number: %d Frame Len: %d\n", packetNum, pktHeader->len);
         putchar('\n');
     }
     return 0;
@@ -55,10 +55,12 @@ void processEthernetHead(const u_char* data, uint32_t* offset){
         switch(Ehead.getType()){
 
             case IPTYPE:
+                printf("\tType: IP\n");
                 processIPHead(data, offset);
                 break;
             
             case ARPTYPE:
+                printf("\tType: ARP\n");
                 processARPHead(data, offset);
                 break;
 
@@ -75,8 +77,12 @@ void processIPHead(const u_char* data, uint32_t* offset){
 
         switch(Ihead.getProtocol()){
 
-            case(ICMPNUM):
+            case(IPPROTO_ICMP):
                 processICMP(data, offset);
+                break;
+
+            case(IPPROTO_TCP):
+                processTCPHead(data, offset, Ihead);
                 break;
 
             default:
@@ -113,3 +119,34 @@ void processICMP(const u_char* data, uint32_t* offset){
 
     return;
 }
+
+void processTCPHead(const u_char* data, uint32_t* offset,IPHead Ihead){
+
+    TCPHead Thead(data+*offset, psuedoSum(data+*offset, Ihead));
+    Thead.display();
+}
+
+bool psuedoSum(const u_char* data, IPHead Ihead){
+
+    uint32_t IPpayload = (Ihead.getLength()-(Ihead.getHeadLen()*BYTEWIDTH/2));
+    uint8_t* pseudoHeader = new uint8_t[PSEUDOLENGTH+IPpayload];
+    
+    memcpy(pseudoHeader, Ihead.getPseudo(), PSEUDOLENGTH);
+    memcpy(pseudoHeader+PSEUDOLENGTH, data, IPpayload);
+
+    free(pseudoHeader);
+
+    return in_cksum((unsigned short*)pseudoHeader, IPpayload+PSEUDOLENGTH) == 0;
+
+}
+
+
+
+
+
+
+
+
+
+
+
