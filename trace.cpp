@@ -9,15 +9,16 @@
 void processEthernetHead(const u_char* data, uint32_t* offset);
 void processIPHead(const u_char* data, uint32_t* offset);
 void processARPHead(const u_char* data, uint32_t* offset);
-void processICMP(const u_char* data, uint32_t* offset);
+void processICMP(const u_char* data);
 void processTCPHead(const u_char* data, uint32_t* offset, IPHead Ihead);
+void processUDP(const u_char* data);
 bool psuedoSum(const u_char* data, IPHead Ihead);
 
 int main(){
 
     int res;
     int packetNum = 1;
-    char fileName[] = "/Users/admin/SethStuff/CPE464_Trace/inputs/smallTCP.pcap";
+    char fileName[] = "/Users/admin/SethStuff/CPE464_Trace/inputs/UDPfile.pcap";
     char errbuf[PCAP_ERRBUF_SIZE];    
 
     struct pcap_pkthdr* pktHeader;
@@ -78,11 +79,15 @@ void processIPHead(const u_char* data, uint32_t* offset){
         switch(Ihead.getProtocol()){
 
             case(IPPROTO_ICMP):
-                processICMP(data, offset);
+                processICMP(data+*offset);
                 break;
 
             case(IPPROTO_TCP):
                 processTCPHead(data, offset, Ihead);
+                break;
+
+            case(IPPROTO_UDP):
+                processUDP(data+*offset);
                 break;
 
             default:
@@ -100,10 +105,16 @@ void processARPHead(const u_char* data, uint32_t* offset){
     return;
 }
 
-void processICMP(const u_char* data, uint32_t* offset){
+void processTCPHead(const u_char* data, uint32_t* offset,IPHead Ihead){
+
+    TCPHead Thead(data+*offset, psuedoSum(data+*offset, Ihead));
+    Thead.display();
+}
+
+void processICMP(const u_char* data){
 
     printf("\tICMP Header\n");
-    switch(*(data+*offset+CODEOFFSET)){
+    switch(*(data+CODEOFFSET)){
         case ECHO:
             printf("\t\tType: Request\n");
             break;
@@ -120,10 +131,17 @@ void processICMP(const u_char* data, uint32_t* offset){
     return;
 }
 
-void processTCPHead(const u_char* data, uint32_t* offset,IPHead Ihead){
+void processUDP(const u_char* data){
+    /*
+    UDP Header
+		Source Port: : 137
+		Dest Port: : 137
+    */
 
-    TCPHead Thead(data+*offset, psuedoSum(data+*offset, Ihead));
-    Thead.display();
+   printf("\tUDP Header\n");
+   printf("\t\tSource Port: : %d\n", ntohs(*(uint16_t*)(data)));
+   printf("\t\tDest Port: : %d\n", ntohs(*(uint16_t*)(data+PORTLENGTH)));
+
 }
 
 bool psuedoSum(const u_char* data, IPHead Ihead){
