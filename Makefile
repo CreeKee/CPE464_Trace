@@ -3,41 +3,42 @@
 # 
 
 CC = g++
-CFLAGS = -g -Wall 
+CFLAGS = -g -Wall -pedantic
 SOURCES = EthernetHead.o IPHead.o checksum.o ARPHead.o TCPHeader.o
 
 LOCAL = /Users/admin/SethStuff/CPE464_Trace/
 
 FILE = UDPfile.pcap
 
-INFILE = $(PATH)inputs/$(FILE)
-CHECKFILE = $(PATH)outputs/$(FILE).out
-#CFLAGS = -g
+INFILE = $(LOCAL)inputs/$(FILE)
+CHECKFILE = $(LOCAL)outputs/$(FILE).out
 
 .PHONY: $(SOURCES) clean
 
 all:  trace
 
-test: $(SOURCES)
-	$(CC) $(CFLAGS) -o test trace.cpp $(SOURCES) -lpcap 
-	rm testout.txt
-	./test $(INFILE) >> testout.txt
+trace: $(SOURCES)
+	$(CC) $(CFLAGS) -o trace trace.cpp $(SOURCES) -lpcap 
+
+test: trace
+	rm -f testout.txt
+	./trace $(INFILE) >> testout.txt
 	diff -w $(CHECKFILE) testout.txt
 
 EthernetHead.o: EthernetHead.cpp
-	$(CC) -c EthernetHead.cpp
+	$(CC) $(CFLAGS) -c EthernetHead.cpp
 
 IPHead.o: IPHead.cpp
-	$(CC) -c IPHead.cpp
+	$(CC) $(CFLAGS) -c IPHead.cpp
 
 ARPHead.o: ARPHead.cpp
-	$(CC) -c ARPHead.cpp
+	$(CC) $(CFLAGS) -c ARPHead.cpp
 
 TCPHeader.o: TCPHeader.cpp
-	$(CC) -c TCPHeader.cpp
+	$(CC) $(CFLAGS) -c TCPHeader.cpp
 
 checksum.o: checksum.c
-	$(CC) -c checksum.c
+	$(CC) $(CFLAGS) -c checksum.c
 clean:
 	rm -f trace
-	rm -f test
+	rm -f *.o
