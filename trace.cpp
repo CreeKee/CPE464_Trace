@@ -1,7 +1,5 @@
 #include "EthernetHead.hpp"
-#include <pcap.h>
-#include <netinet/if_ether.h>
-#include <arpa/inet.h>
+#include "includes.hpp"
 #include "IPHead.hpp"
 #include "ARPHead.hpp"
 #include "TCPHeader.hpp"
