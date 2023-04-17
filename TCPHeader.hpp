@@ -6,7 +6,6 @@
 class TCPHead{
 
     private:
-        //stuff
         uint16_t srcPort;
         uint16_t dstPort;
         uint32_t sequenceNum;

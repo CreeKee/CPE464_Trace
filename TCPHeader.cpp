@@ -1,34 +1,49 @@
 #include "TCPHeader.hpp"
 
+/*
+TCPHead constructor
+*/
 TCPHead::TCPHead(const u_char* data, bool checked){
 
+    //store source port
     srcPort = ntohs(*(uint16_t*)data);
     data += PORTLENGTH;
 
+    //store destination port
     dstPort = ntohs(*(uint16_t*)data);
     data += PORTLENGTH;
 
+    //store sequence number
     sequenceNum = ntohl(*(uint32_t*)data);
     data += SEQNUMLENGTH;
 
+    //store ack number
     ackNum = ntohl(*(uint32_t*)data);
     data += ACKNUMLENGTH;
 
+    //store flags
     flags = ntohs(*(uint16_t*)data);
     data += FLAGLENGTH;
 
+    //store window size
     windowSize = ntohs(*(uint16_t*)data);
-    data += WINDOWLENTH; //TODO
+    data += WINDOWLENTH;
 
+    //store checksum
     checksum = ntohs(*(uint16_t*)data);
 
+    //store checksum confirmation
     conf = checked;
+
+    return;
 }
 
+/*
+display function to print TCP header information
+*/
 void TCPHead::display(){
+
     printf("\n\tTCP Header\n");
-    
-    
 
     switch(srcPort){
         

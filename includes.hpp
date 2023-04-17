@@ -55,3 +55,7 @@
 #define RSTMASK 0x04
 #define FINMASK 0x01
 #define HTTP_PORT 80
+
+//ICMP defines
+#define ICMPREQUEST 8
+#define ICMPREPLY 0

@@ -6,7 +6,6 @@
 class ARPHead{
 
     private:
-        //stuff
         uint16_t opcode;
 
         char sourceIP[IPSIZE];

@@ -6,7 +6,6 @@
 class IPHead{
 
     private:
-        //stuff
         u_char verslen;
         u_char tos;
         uint16_t length;
@@ -23,6 +22,7 @@ class IPHead{
         char destIP[IPSIZE];
 
         uint8_t pseudo[PSEUDOLENGTH];
+
     public:
         IPHead(const u_char* data, uint32_t* offset);
 
@@ -38,7 +38,6 @@ class IPHead{
         uint8_t* getPseudo(){return pseudo;}
 
         void display();
-
 };
 
 #endif
