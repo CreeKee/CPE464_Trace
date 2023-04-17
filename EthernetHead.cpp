@@ -24,6 +24,13 @@ EthernetHead::EthernetHead(const u_char* data, uint32_t* offset){
 
 }
 
+void EthernetHead::display(){
+
+    //display header info
+    printf("\tEthernet Header\n");
+    printf("\t\tDest MAC: %s\n", dstMac);
+    printf("\t\tSource MAC: %s\n", srcMac);
+}
 
 
 

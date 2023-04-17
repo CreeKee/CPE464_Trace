@@ -31,76 +31,102 @@ int main(int argc, char* argv[]){
         exit(-1);
     }
 
-    while((res = pcap_next_ex(packet, &pktHeader, &data)) >=0){ //error check
-
+    //process packets
+    while((res = pcap_next_ex(packet, &pktHeader, &data)) >=0 ){
 
         printf("\nPacket number: %d  Frame Len: %d\n\n", packetNum, pktHeader->len);
 
+        //increment packet number
         packetNum++;
+
+        //reset data offset
         offset = 0;
 
+        //process packet, starting with the ethernet header
         processEthernetHead(data, &offset);
         
-        
     }
+
     return 0;
 }
 
+/*
+processEthernetHead takes a pointer to the start of a packet which
+starts with an ethernet header and processes that header, prints it
+and processes any subsequent headers
+*/
 void processEthernetHead(const u_char* data, uint32_t* offset){
 
-        EthernetHead Ehead = EthernetHead(data, offset);
+    //read in ethernet header
+    EthernetHead Ehead = EthernetHead(data, offset);
 
-        printf("\tEthernet Header\n");
-        printf("\t\tDest MAC: %s\n", Ehead.getDest());
-        printf("\t\tSource MAC: %s\n", Ehead.getSrc());
+    //display ethernet header
+    Ehead.display();
 
-        switch(Ehead.getType()){
+    //select next header type
+    switch(Ehead.getType()){
 
-            case IPTYPE:
-                printf("\t\tType: IP\n\n");
-                processIPHead(data, offset);
-                break;
-            
-            case ARPTYPE:
-                printf("\t\tType: ARP\n\n");
-                processARPHead(data, offset);
-                break;
+        case IPTYPE:
+            printf("\t\tType: IP\n\n");
+            processIPHead(data, offset);
+            break;
+        
+        case ARPTYPE:
+            printf("\t\tType: ARP\n\n");
+            processARPHead(data, offset);
+            break;
 
-            default:
-                break;
-        }
+        default:
+            break;
+    }
 
 }
 
+/*
+processIPHead takes a pointer and offset whcih points to the start 
+of a IP header in a packet, prints it, and processes any subsequent
+headers.
+*/
 void processIPHead(const u_char* data, uint32_t* offset){
 
+    //read IP header
     IPHead Ihead(data+*offset, offset);
+
+    //display IP header
     Ihead.display();
 
-        switch(Ihead.getProtocol()){
+    //select next header
+    switch(Ihead.getProtocol()){
 
-            case(IPPROTO_ICMP):
-                processICMP(data+*offset);
-                break;
+        case(IPPROTO_ICMP):
+            processICMP(data+*offset);
+            break;
 
-            case(IPPROTO_TCP):
-                processTCPHead(data, offset, Ihead);
-                break;
+        case(IPPROTO_TCP):
+            processTCPHead(data, offset, Ihead);
+            break;
 
-            case(IPPROTO_UDP):
-                processUDP(data+*offset);
-                break;
+        case(IPPROTO_UDP):
+            processUDP(data+*offset);
+            break;
 
-            default:
-                break;
-        }
+        default:
+            break;
+    }
 
-        return;
+    return;
 }
 
+/*
+processARPHead takes a pointer and offset whcih points to the start 
+of a ARP header in a packet and prints its contents
+*/
 void processARPHead(const u_char* data, uint32_t* offset){
 
+    //read in ARP header
     ARPHead Ahead(data+*offset);
+
+    //print ARP header
     Ahead.display();
 
     return;
@@ -108,8 +134,13 @@ void processARPHead(const u_char* data, uint32_t* offset){
 
 void processTCPHead(const u_char* data, uint32_t* offset,IPHead Ihead){
 
+    //read in TCP header
     TCPHead Thead(data+*offset, psuedoSum(data+*offset, Ihead));
+
+    //print TCP header
     Thead.display();
+
+    return;
 }
 
 void processICMP(const u_char* data){

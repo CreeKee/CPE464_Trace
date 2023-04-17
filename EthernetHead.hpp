@@ -15,8 +15,9 @@ class EthernetHead{
         char* getSrc(){return srcMac;}
         char* getDest(){return dstMac;}
         uint16_t getType(){return type;}
-
         char* formatSrc();
+
+        void display();
 };
 
 #endif

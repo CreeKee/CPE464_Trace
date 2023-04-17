@@ -14,7 +14,7 @@ INFILE = $(PATH)inputs/$(FILE)
 CHECKFILE = $(PATH)outputs/$(FILE).out
 #CFLAGS = -g
 
-.PHONY: $(SOURCES)
+.PHONY: $(SOURCES) clean
 
 all:  trace
 
@@ -30,7 +30,7 @@ EthernetHead.o: EthernetHead.cpp
 IPHead.o: IPHead.cpp
 	$(CC) -c IPHead.cpp
 
-ARPhead.o: ARPhead.cpp
+ARPHead.o: ARPHead.cpp
 	$(CC) -c ARPHead.cpp
 
 TCPHeader.o: TCPHeader.cpp
