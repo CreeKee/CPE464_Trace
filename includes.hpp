@@ -3,6 +3,7 @@
 #include <iostream>
 #include <netinet/if_ether.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include "checksum.h"
 
 #define BYTEWIDTH 8
