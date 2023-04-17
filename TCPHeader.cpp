@@ -24,26 +24,42 @@ TCPHead::TCPHead(const u_char* data, bool checked){
 
     conf = checked;
 }
-/*
-	TCP Header
-		Source Port: : 1675
-		Dest Port: : 22
-		Sequence Number: 120760710
-		ACK Number: 3289360763
-		ACK Flag: Yes
-		SYN Flag: No
-		RST Flag: No
-		FIN Flag: No
-		Window Size: 16560
-		Checksum: Correct (0xab2)
-*/
+
 void TCPHead::display(){
-    printf("\tTCP Header\n");
-    printf("\t\tSource Port: : %u\n", srcPort);
-    printf("\t\tDest Port: : %u\n", dstPort);
+    printf("\n\tTCP Header\n");
+    
+    
+
+    switch(srcPort){
+        
+        case HTTP_PORT:
+            printf("\t\tSource Port:  HTTP\n");
+            break;
+
+        default:
+            printf("\t\tSource Port: : %u\n", srcPort);
+            break;
+    }
+
+    switch(dstPort){
+        
+        case HTTP_PORT:
+            printf("\t\tDest Port:  HTTP\n");
+            break;
+
+        default:
+        printf("\t\tDest Port: : %u\n", dstPort);
+            break;
+    }
+
     printf("\t\tSequence Number: %u\n", sequenceNum);
-    printf("\t\tACK Number: %u\n", ackNum);
-    printf("\t\tTODO flags\n");
+
+    if((flags & ACKMASK) == 0 || ackNum == 0){
+        printf("\t\tACK Number: <not valid>\n");
+    }
+    else{
+        printf("\t\tACK Number: %u\n", ackNum);
+    }
 
     printf("\t\tACK Flag: %s\n",flags & ACKMASK ? "Yes":"No");
     printf("\t\tSYN Flag: %s\n",flags & SYNMASK ? "Yes":"No");
@@ -51,7 +67,7 @@ void TCPHead::display(){
     printf("\t\tFIN Flag: %s\n",flags & FINMASK ? "Yes":"No");
 
     printf("\t\tWindow Size: %u\n", windowSize);
-    printf("\t\tChecksum: %s (0x%x)", (conf == true ?"Correct":"Incorrect"), checksum);
+    printf("\t\tChecksum: %s (0x%x)\n", (conf == true ?"Correct":"Incorrect"), checksum);
 }
 
 

@@ -14,33 +14,34 @@ void processTCPHead(const u_char* data, uint32_t* offset, IPHead Ihead);
 void processUDP(const u_char* data);
 bool psuedoSum(const u_char* data, IPHead Ihead);
 
-int main(){
+int main(int argc, char* argv[]){
 
     int res;
     int packetNum = 1;
-    char fileName[] = "/Users/admin/SethStuff/CPE464_Trace/inputs/UDPfile.pcap";
     char errbuf[PCAP_ERRBUF_SIZE];    
 
     struct pcap_pkthdr* pktHeader;
     const u_char* data;
     uint32_t offset = 0;
 
-    pcap_t* packet = pcap_open_offline(fileName, errbuf);
+    //open packet folder
+    pcap_t* packet = pcap_open_offline(argv[1], errbuf);
     if(!packet){
-        printf("ERROR: unable to open file\n"); //TODO
+        perror("ERROR: unable to open file\n");
+        exit(-1);
     }
-
 
     while((res = pcap_next_ex(packet, &pktHeader, &data)) >=0){ //error check
 
-        printf("Packet number: %d Frame Len: %d\n\n", packetNum, pktHeader->len);
+
+        printf("\nPacket number: %d  Frame Len: %d\n\n", packetNum, pktHeader->len);
 
         packetNum++;
         offset = 0;
 
         processEthernetHead(data, &offset);
         
-        putchar('\n');
+        
     }
     return 0;
 }
@@ -49,19 +50,19 @@ void processEthernetHead(const u_char* data, uint32_t* offset){
 
         EthernetHead Ehead = EthernetHead(data, offset);
 
-        printf("\tEthernet Header:\n");
+        printf("\tEthernet Header\n");
         printf("\t\tDest MAC: %s\n", Ehead.getDest());
-        printf("\t\tSource MAC: %s\n\n", Ehead.getSrc());
+        printf("\t\tSource MAC: %s\n", Ehead.getSrc());
 
         switch(Ehead.getType()){
 
             case IPTYPE:
-                printf("\tType: IP\n");
+                printf("\t\tType: IP\n\n");
                 processIPHead(data, offset);
                 break;
             
             case ARPTYPE:
-                printf("\tType: ARP\n");
+                printf("\t\tType: ARP\n\n");
                 processARPHead(data, offset);
                 break;
 
@@ -113,18 +114,18 @@ void processTCPHead(const u_char* data, uint32_t* offset,IPHead Ihead){
 
 void processICMP(const u_char* data){
 
-    printf("\tICMP Header\n");
-    switch(*(data+CODEOFFSET)){
-        case ECHO:
+    printf("\t\nICMP Header\n");
+    switch(*data){
+        case 8: //TODO
             printf("\t\tType: Request\n");
             break;
 
-        case ECHOREPLY:
+        case 0:
             printf("\t\tType: Reply\n");
             break;
 
         default:
-            printf("\t\tUnkown ICMP type\n");
+            printf("\t\tType: %d\n", *(data+CODEOFFSET)-1);
             break;
     }
 
@@ -138,7 +139,7 @@ void processUDP(const u_char* data){
 		Dest Port: : 137
     */
 
-   printf("\tUDP Header\n");
+   printf("\n\tUDP Header\n");
    printf("\t\tSource Port: : %d\n", ntohs(*(uint16_t*)(data)));
    printf("\t\tDest Port: : %d\n", ntohs(*(uint16_t*)(data+PORTLENGTH)));
 
@@ -146,25 +147,91 @@ void processUDP(const u_char* data){
 
 bool psuedoSum(const u_char* data, IPHead Ihead){
 
+    bool retval;
     uint32_t IPpayload = (Ihead.getLength()-(Ihead.getHeadLen()*BYTEWIDTH/2));
     uint8_t* pseudoHeader = new uint8_t[PSEUDOLENGTH+IPpayload];
     
     memcpy(pseudoHeader, Ihead.getPseudo(), PSEUDOLENGTH);
     memcpy(pseudoHeader+PSEUDOLENGTH, data, IPpayload);
-
+ 
+    
+    retval= in_cksum((unsigned short*)pseudoHeader, IPpayload+PSEUDOLENGTH) == 0;
     free(pseudoHeader);
 
-    return in_cksum((unsigned short*)pseudoHeader, IPpayload+PSEUDOLENGTH) == 0;
+    return retval;
 
 }
 
 
 
+/*
+Packet number: 10  Frame Len: 438
+
+	Ethernet Header
+		Dest MAC: 0:2:2d:90:75:89
+		Source MAC: 0:6:25:78:c4:7d
+		Type: IP
+
+	IP Header
+		Header Len: 20 (bytes)
+		TOS: 0x0
+		TTL: 51
+		IP PDU Len: 424 (bytes)
+		Protocol: TCP
+		Checksum: Correct (0x5e75)
+		Sender IP: 129.65.242.4
+		Dest IP: 192.168.1.102
+
+	TCP Header
+		Source Port: : 22
+		Dest Port: : 1675
+		Sequence Number: 3289359219
+		ACK Number: 120760270
+		ACK Flag: Yes
+		SYN Flag: No
+		RST Flag: No
+		FIN Flag: No
+		Window Size: 49680
+		Checksum: Correct (0x43ed)
+
+Packet number: 11  Frame Len: 78
+
+	Ethernet Header
+		Dest MAC: 0:6:25:78:c4:7d
+		Source MAC: 0:2:2d:90:75:89
+		Type: IP
+*/
 
 
+/*
+Packet number: 9  Frame Len: 60
 
+	Ethernet Header
+		Dest MAC: 0:2:2d:90:75:89
+		Source MAC: 0:6:25:78:c4:7d
+		Type: IP
 
+	IP Header
+		Header Len: 20 (bytes)
+		TOS: 0x0
+		TTL: 51
+		IP PDU Len: 40 (bytes)
+		Protocol: TCP
+		Checksum: Correct (0xdf76)
+		Sender IP: 129.65.242.4
+		Dest IP: 192.168.1.102
 
+	TCP Header
+		Source Port: : 22
+		Dest Port: : 1675
+		Sequence Number: 3289359219
+		ACK Number: 120760270
+		ACK Flag: Yes
+		SYN Flag: No
+		RST Flag: No
+		FIN Flag: No
+		Window Size: 49680
+		Checksum: Correct (0x9b4a)
 
-
+*/
 

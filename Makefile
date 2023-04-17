@@ -1,18 +1,28 @@
 # Example makefile for CPE464 program 1
 #
 # 
-.PHONY: test
-.PHONY: EthernetHead.o
+
 CC = g++
 CFLAGS = -g -Wall 
 SOURCES = EthernetHead.o IPHead.o checksum.o ARPHead.o TCPHeader.o
+
+PATH = /Users/admin/SethStuff/CPE464_Trace/
+
+FILE = UDPfile.pcap
+
+INFILE = $(PATH)inputs/$(FILE)
+CHECKFILE = $(PATH)outputs/$(FILE).out
 #CFLAGS = -g
+
+.PHONY: $(SOURCES)
 
 all:  trace
 
 test: $(SOURCES)
 	$(CC) $(CFLAGS) -o test trace.cpp $(SOURCES) -lpcap 
-	./test
+	rm testout.txt
+	./test $(INFILE) >> testout.txt
+	diff -w $(CHECKFILE) testout.txt
 
 EthernetHead.o: EthernetHead.cpp
 	$(CC) -c EthernetHead.cpp

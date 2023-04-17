@@ -51,3 +51,4 @@
 #define SYNMASK 0x02
 #define RSTMASK 0x04
 #define FINMASK 0x01
+#define HTTP_PORT 80

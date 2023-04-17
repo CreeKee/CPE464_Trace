@@ -34,7 +34,7 @@ ARPHead::ARPHead(const u_char* data){
 }
 
 void ARPHead::display(){
-        printf("\tType: ARP\n");
+        printf("\tARP header\n");
 
     switch(opcode){
 
@@ -53,6 +53,6 @@ void ARPHead::display(){
     printf("\t\tSender MAC: %s\n", srcMac);
     printf("\t\tSender IP: %s\n", sourceIP);
     printf("\t\tTarget MAC: %s\n", dstMac);
-    printf("\t\tTarget IP: %s\n", destIP);
+    printf("\t\tTarget IP: %s\n\n", destIP);
     
 }

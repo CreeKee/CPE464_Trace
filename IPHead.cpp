@@ -56,7 +56,7 @@ IPHead::IPHead(const u_char* data, uint32_t* offset){
 void IPHead::display(){
     printf("\tIP Header\n");
     printf("\t\tHeader Len: %d (bytes)\n",(verslen&LOWERMASK)*BYTEWIDTH/2 );
-    printf("\t\tTOS 0x%x\n",tos);
+    printf("\t\tTOS: 0x%x\n",tos);
     printf("\t\tTTL: %d\n",ttl);
     printf("\t\tIP PDU Len: %d (bytes)\n",length);
 
@@ -67,13 +67,19 @@ void IPHead::display(){
             break;
 
         case(IPPROTO_TCP):
+            printf("\t\tProtocol: TCP\n");
+            break;
+
+        case(IPPROTO_UDP):
+            printf("\t\tProtocol: UDP\n");
+            break;
 
         default:
-            printf("\t\tProtocol: Unkown\n");
+            printf("\t\tProtocol: Unknown\n");
             break;
     }
 
     printf("\t\tChecksum: %s (0x%x)\n",(checked == true ? "Correct" : "Incorrect"), chksum);
     printf("\t\tSender IP: %s\n", sourceIP);
-    printf("\t\tDest IP: %s\n\n",destIP);
+    printf("\t\tDest IP: %s\n",destIP);
 }
