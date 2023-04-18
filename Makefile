@@ -6,7 +6,7 @@ CC = g++
 CFLAGS = -g -Wall -pedantic
 SOURCES = EthernetHead.o IPHead.o checksum.o ARPHead.o TCPHeader.o
 
-LOCAL = /Users/admin/SethStuff/CPE464_Trace/
+LOCAL = ./
 
 FILE = UDPfile.pcap
 

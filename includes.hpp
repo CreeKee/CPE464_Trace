@@ -1,7 +1,7 @@
 #include <string.h>
 #include <arpa/inet.h>
 #include <iostream>
-#include <netinet/if_ether.h>
+#include <netinet/ether.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <pcap.h>
